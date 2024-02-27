@@ -9,6 +9,11 @@ main.o: frontend/main.c frontend/readfile.h
 	cc -c frontend/main.c
 readfile.o: frontend/readfile.c
 	cc -c frontend/readfile.c
-clean:
+rmex:
 	rm mtpl
 .PHONY : main.o readfile.o
+
+clean:
+	rm *.o
+simple: frontend/main.c frontend/readfile.c frontend/readfile.h
+	cc -o mptl frontend/main.c frontend/readfile.c frontend/readfile.h
