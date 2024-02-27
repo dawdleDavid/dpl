@@ -7,6 +7,11 @@
 
 #include "readfile.h"
 
+
+#include "../mtpl.h"
+
+
+
 uint64_t string_lenght(const char* string){
   uint64_t len=0;
   while(string[len] != '\0'){
@@ -38,7 +43,8 @@ int main(int argc, char* argv[]){
             exit(0);
         }
         if(string_compare(argc[argv-2], "-r") == 0){
-            FILE* file = readFile(argv[argc-1]);
+            printf("%s\n", argv[argc-1]);
+            FILE* file = readFile((char*)argv[argc-1]); // for clarity
 
             if(file == (FILE*)1){
                 fprintf(stderr, "could not open file\n");

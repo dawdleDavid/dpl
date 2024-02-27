@@ -16,4 +16,4 @@ rmex:
 clean:
 	rm *.o
 simple: frontend/main.c frontend/readfile.c frontend/readfile.h
-	cc -o mptl frontend/main.c frontend/readfile.c frontend/readfile.h
+	cc -o mtpl frontend/main.c frontend/readfile.c frontend/readfile.h

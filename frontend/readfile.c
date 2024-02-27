@@ -6,10 +6,10 @@
 /*
 ---------------------------------------------------
 Reads a file and returns a pointer (memory address)
-associated with the file
+associated with the file.
 ---------------------------------------------------
 */
-FILE* readFile(const char* file){
+FILE* readFile(char* file){
 
     FILE* filepointer = fopen(file, "r+");
 
