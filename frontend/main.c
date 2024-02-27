@@ -1,8 +1,8 @@
 
 
 #include "readfile.h"
-
-
+#include <stdio.h>
+#include <errno.h>
 
 
 
@@ -12,6 +12,7 @@ int main(int argc, char* argv[]){
 
 
     if(argv[argc-1] == NULL){
+        fprintf(stderr, "no files found, stop");
         return 1; // exit fail
     }
     FILE* file = readFile(argv[argc-1]);
