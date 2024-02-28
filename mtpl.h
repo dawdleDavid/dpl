@@ -5,6 +5,6 @@
 
 
 extern void breakFile(FILE* file);
-
+extern void mtplParse(FILE* file);
 
 #endif

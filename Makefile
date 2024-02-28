@@ -15,5 +15,5 @@ rmex:
 
 clean:
 	rm *.o
-simple: frontend/main.c frontend/readfile.c frontend/readfile.h
-	cc -o mtpl frontend/main.c frontend/readfile.c frontend/readfile.h
+simple: frontend/main.c frontend/readfile.c core/src/strings.c core/src/parser.c core/head/strings.h frontend/readfile.h
+	cc -Wall -Wpedantic -o mtpl frontend/main.c frontend/readfile.c core/src/strings.c core/src/parser.c core/head/strings.h frontend/readfile.h mtpl.h
