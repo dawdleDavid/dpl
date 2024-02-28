@@ -26,14 +26,14 @@ int main(int argc, char* argv[]){
 
             if(file == (FILE*)1){
                 fprintf(stderr, "could not open file\n");
-                exit(1);
+                return 1;
             }
             // run the interpeter
 
 
             mtplParse(file);
 
-            exit(0);
+            return 0;
         }
     }else{
         fprintf(stderr, "to few arguments\n");

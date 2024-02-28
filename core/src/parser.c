@@ -1,13 +1,10 @@
-
-
-
-
-
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../head/parser.h"
 #include "../head/strings.h"
 #include <string.h>
+#include <stdbool.h>
 /*
     Convert the data from string
     form to numbers that are
@@ -16,6 +13,13 @@
     OPERATOR OPERAND.
 */
 
+// debug
+#include <assert.h>
+// unit testing
+#include <check.h>
+
+
+
 const char* key[4] = {
     "INTEGER",
     "FLOAT",
@@ -23,56 +27,71 @@ const char* key[4] = {
     "END"
 };
 
+struct Memwrap{
+    char words_list[ROW_LIMIT][ROW_LIMIT];
+};
 
 // returns memory that has to be free'd
-const char* findKeywords(char* buffer){
+struct Memwrap* findKeyword(struct Memwrap* memwrap, char* buffer){
+    char word[ROW_LIMIT]; char words_list[ROW_LIMIT][ROW_LIMIT];
 
-    const char list[ROW_LIMIT][ROW_LIMIT];    // goodby to memory eff
+    int walk = -1,words=0;
 
+    int word_index = 0;
 
-    char wordbuffer[256];
-
-
-    int char_counter = 0;
-    for(int c = 0; c <= string_lenght((const char*)buffer); c++){
-
-
-        if(*(buffer + c) == ' '){
-            // start reverse search trough the entire string
-            for(int reverse = 0; reverse <= char_counter; reverse++){
-                // asem chars into string...
-                wordbuffer[reverse] = buffer[reverse];
+    for(int character = 0; character <= strlen(buffer); character++){
+        walk++;
+        if(buffer[character] == ' ' || buffer[character] == '\n'){
+            for(int index = (character-walk); index <= character; index++){
+                word[word_index] = buffer[index];
+                word_index++;
             }
-            memcpy(list, buffer, string_lenght(wordbuffer)); // idk, looks like a segfault to me
+            strcpy(words_list[words], word);
+            words++;
+
+            // clean the array...
+
+            for(int i = 0; i <= ROW_LIMIT; i++){
+                word[i] = (char)0;
+            }
+
+            walk = 0; word_index = 0;
         }
-        // add if not
-        char_counter++;
 
     }
-    return list;    // this is some bad stuff
+    for(int i = 0; i <= ROW_LIMIT; i++){
+        strcpy(memwrap->words_list[i], words_list[i]);
+    }
+    return memwrap;
 }
-// defacto main function of the parser
+// defacto main function of the parser!
 void mtplParse(FILE* file){
 
+    struct Memwrap memwrap; struct Memwrap* memwrap_p;
+
+    if(file == (FILE*)NULL){
+        perror("");
+    }
+
+    puts("we ran this..");
     // first pass, preprocessing...
     char buffer[ROW_LIMIT];
 
-    char** words;
-    while(fgets(buffer, sizeof(buffer), file)){
-        // do something with the line that you just got
-
-        words = findKeywords(buffer);
+    //char* word;
+    //while(true){
 
 
-        // do stuff with the words of this line
+    char* row = fgets(buffer, 256, file);
 
-        for(int i = 0; i <= sizeof(words); i++){
-            printf("%s", words[i]);
-        }
-
-        // free memory associated with words
-
+    if(row == (char*)NULL){
+        printf("end\n");
+            //break;
     }
+        // do something with the line that you just got
+    memwrap_p = findKeyword(&memwrap, row);
 
+
+
+    printf("%s\n", memwrap_p->words_list[0]);
+    //}
 }
-

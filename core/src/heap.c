@@ -192,9 +192,8 @@ void Terminal_Interface(){
 }
 
 struct Node* getheapData(int choice)
-                printf("Sökt värde: ");
-                scanf("%d", &choice);
-                   struct Node* node = start;
+
+                struct Node* node = start;
 
 
                 for(int i = 1; i <= n; i++){
