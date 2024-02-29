@@ -21,18 +21,29 @@
 
 
 const char* key[4] = {
-    "INTEGER",
-    "FLOAT",
-    "IF",
-    "END"
+    "integer",
+    "float",
+    "if",
+    "end"
 };
 
-struct Memwrap{
-    char words_list[ROW_LIMIT][ROW_LIMIT];
-};
+
+struct Tape* memorizeVarble(struct Tape* tape_p, struct Varible_s* varible){
+
+    // handle the varibles;
+    for(int i = 0; i <= ROW_LIMIT; i++){
+        if(string_compare(tape_p->words_list[i], key[0])){
+            // allocate the varible in the linked list with a pointer to its struct
+
+        }
+    }
+
+
+    return tape_p;
+}
 
 // returns memory that has to be free'd
-struct Memwrap* findKeyword(struct Memwrap* memwrap, char* buffer){
+struct Tape* findKeyword(struct Tape* memwrap, char* buffer){
     char word[ROW_LIMIT]; char words_list[ROW_LIMIT][ROW_LIMIT];
 
     int walk = -1,words=0;
@@ -67,7 +78,12 @@ struct Memwrap* findKeyword(struct Memwrap* memwrap, char* buffer){
 // defacto main function of the parser!
 void mtplParse(FILE* file){
 
-    struct Memwrap memwrap; struct Memwrap* memwrap_p;
+
+    struct Varible_s varible;
+    struct MtplState_s state;struct MtplState_s* state_p = &state;
+
+
+    struct Tape memwrap; struct Tape* memwrap_p;
 
     if(file == (FILE*)NULL){
         perror("");
@@ -89,7 +105,7 @@ void mtplParse(FILE* file){
     }
         // do something with the line that you just got
     memwrap_p = findKeyword(&memwrap, row);
-
+    memwrap_p = memorizeVarble(memwrap_p, &varible);
 
 
     printf("%s\n", memwrap_p->words_list[0]);
