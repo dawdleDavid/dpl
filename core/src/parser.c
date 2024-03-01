@@ -1,8 +1,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../head/parser.h"
-#include "../head/strings.h"
+
 #include <string.h>
 #include <stdbool.h>
 /*
@@ -20,6 +19,10 @@
 
 
 
+#include "../head/heap.h"
+#include "../head/parser.h"
+#include "../head/strings.h"
+
 const char* key[4] = {
     "integer",
     "float",
@@ -28,13 +31,15 @@ const char* key[4] = {
 };
 
 
-struct Tape* memorizeVarble(struct Tape* tape_p, struct Varible_s* varible){
+struct Tape* memorizeVarible(struct Tape* tape_p, struct Varible_s* varible){
 
     // handle the varibles;
     for(int i = 0; i <= ROW_LIMIT; i++){
         if(string_compare(tape_p->words_list[i], key[0])){
             // allocate the varible in the linked list with a pointer to its struct
 
+
+            // NOTICE: add_to_list
         }
     }
 
@@ -79,6 +84,13 @@ struct Tape* findKeyword(struct Tape* memwrap, char* buffer){
 void mtplParse(FILE* file){
 
 
+
+    // init memory structures
+
+
+
+
+
     struct Varible_s varible;
     struct MtplState_s state;struct MtplState_s* state_p = &state;
 
@@ -105,7 +117,7 @@ void mtplParse(FILE* file){
     }
         // do something with the line that you just got
     memwrap_p = findKeyword(&memwrap, row);
-    memwrap_p = memorizeVarble(memwrap_p, &varible);
+    memwrap_p = memorizeVarible(memwrap_p, &varible);
 
 
     printf("%s\n", memwrap_p->words_list[0]);

@@ -12,11 +12,11 @@ union Stack{    // sizeof union pointer
     union Strings* strings;
     union Numbers* numbers;
 };
+
+#include <unistd.h>
+#include <sys/mman.h>
+#include <stdio.h>
 // functiondefs
-
-
-void* mtplAllocate();
-void* mtplFree();
-
-
+void* mem_alloc(void* data, int size);
+int mem_free(void* ptr, long int size);
 #endif

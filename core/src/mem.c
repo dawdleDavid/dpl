@@ -1,5 +1,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
+#include <stdio.h> // remove later
+#include <string.h>
 void* mem_alloc(void* data, int size){
 
 
@@ -8,7 +10,7 @@ void* mem_alloc(void* data, int size){
 
     if(ptr == (void *)-1){
         puts("memory allocation failed");
-        exit(-1);
+        return (void*)-1;
     }
     memcpy(ptr, data, size);   // KOPIERA ÖVER MINNET, ALERT: SEGFAULT! (chorus of spaceballs theme) (no longer but props soon again <--)
 

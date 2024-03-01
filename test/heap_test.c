@@ -9,9 +9,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 // MINNE
+
+
+
+int choice = 0;
+
+
+struct Node{
+    void* data; // ATTENTION: memory address to allocated memory
+    struct Node* next;
+};
+// TEST DATA
+struct Nodes{
+    struct Node* start;
+    int number_of_nodes;
+    struct Node* node;
+};
+struct Nodes nodes;
+struct Node node;
+
+struct Node* start;
+
+struct Node* JariPekare;
+
+//struct Node* node = start;
+
+
+enum{
+    HEAP_CREATE,
+    HEAP_REMOVE,
+    HEAP_LIST,
+    HEAP_FIND
+};
+
+
 void* mem_alloc(void* data, int size){
-
-
     void *ptr = mmap ( NULL, size,
       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
 
@@ -19,14 +51,7 @@ void* mem_alloc(void* data, int size){
         puts("memory allocation failed");
         exit(-1);
     }
-
-
-
-
-
     memcpy(ptr, data, size);   // KOPIERA ÖVER MINNET, ALERT: SEGFAULT! (chorus of spaceballs theme) (no longer but props soon again <--)
-
-
     return ptr;
 }
 
@@ -38,16 +63,6 @@ int mem_free(void* ptr, long int size){
     }return 1;
 }
 
-struct Node{
-    int data;
-    struct Node* next;
-};
-// TEST DATA
-struct Nodes{
-    struct Node* start;
-    int number_of_nodes;
-    struct Node* node;
-};
 
 union Test{
     int mode;
@@ -56,11 +71,11 @@ union Test{
 };
 
 
-struct Node* LL_Create(struct Nodes* nodes, int n){
+struct Node* LL_Create(struct Nodes* nodes, int n, void* data){
 
 
     nodes->number_of_nodes = n;
-    nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(nodes->node));    // ALERT: FIRST ALLOC HERE TO SET UP VARIBLES
+    nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));    // ALERT: FIRST ALLOC HERE TO SET UP VARIBLES
     struct Node* start = nodes->node;       // start adress for linked list, BTW does this work like you think it does?
     struct Node* prev;
 
@@ -68,8 +83,8 @@ struct Node* LL_Create(struct Nodes* nodes, int n){
 
     for(int i = 1; i <= nodes->number_of_nodes; i++){
 
-        printf("value at node %d --> ", i);
-        scanf("%d", &nodes->node->data);
+
+        nodes->node->data = data;
 
 
 
@@ -93,7 +108,7 @@ int LL_List(struct Nodes* nodes, int n, struct Node* start){
     // puts("haw");
     for(int i = 1; i <= n; i++){
         // puts("boys");
-        printf("(%d) %p %d\n", i, &node->data, node->data);
+        printf("(%d) %p %p\n", i, &node->data, node->data);
         if(i == 1){
             node = start->next;
             continue;
@@ -144,45 +159,46 @@ int LL_Remove(struct Nodes* nodes, int n, struct Node* start, int choice){
     return n;
 
 }
-void Terminal_Interface(){
+
+
+/*
+
+enum{
+    HEAP_CREATE,
+    HEAP_REMOVE,
+    HEAP_LIST,
+    HEAP_FIND
+};
+ */
+unsigned int HEAP_Main(unsigned int opcode){
 
     printf("|---------------------------|\n|Q --> Quit                 |\n|R --> Remove Node          |\n|F --> Find Node (by value) |\n|C --> Create Node          |\n|L --> List Nodes           |\n|---------------------------|\n\n");
 
-    struct Nodes nodes;
-    struct Node node;
 
-    bool run = true;
-    int choice = 0;
-
-    while(run){
-
-        struct Node* start;
-
-        struct Node* JariPekare;
-
-        struct Node* node = start;
 
         // ALERT: INIT STRUCT BY DEF START ADRESS
         // ´nodes.start = nodes.node;
-        char opcode;
+
         int n;
-        printf(">>");
-        scanf("%c", &opcode);
+
+        // temp data
+        void* data = (void*)0xFF;
+
         puts("\n");
-        switch((uint8_t)opcode){
-            case 'Q':
-                run = false;
+        switch(opcode){
+            case 2343245:   // secret souce functionality
+                /*This does not even clear memory... HAH*/
                 break;
-            case 'C':
+            case HEAP_CREATE:
                 printf("Hur många noder vill ni skapa?: ");
                 scanf("%d", &n);
-                start = LL_Create(&nodes, n);
+                start = LL_Create(&nodes, n, data);
                 break;
-            case 'L':
+            case HEAP_LIST:
                 LL_List(&nodes, n, start);
                 break;
 
-            case 'R':
+            case HEAP_REMOVE:
                 LL_List(&nodes, n, start);
                 printf("Witch list would you like to remove?: ");
                 scanf("%d", &choice);
@@ -198,8 +214,8 @@ void Terminal_Interface(){
                 puts("ran LL_Remove");
                 n = LL_Remove(&nodes, n, start, choice);
                 break;
-
-            case 'F':
+            /*
+            case HEAP_FIND:
                 printf("Sökt värde: ");
                 scanf("%d", &choice);
                    struct Node* node = start;
@@ -218,18 +234,20 @@ void Terminal_Interface(){
                 }
                 printf("värde finns ej");
                 break;
+
+            */
         }
 
-    }
-    return;
+    return 0;
 }
 int main(int argc, char* argv[]){
 
+    // create some ghost functions to call heap main
 
 
-
-
-    Terminal_Interface();
+    // DE-BUG tests
+    HEAP_Main(HEAP_CREATE);
+    HEAP_Main(HEAP_LIST);
 
     return 0;
 }
