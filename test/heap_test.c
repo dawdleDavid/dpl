@@ -8,12 +8,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-// MINNE
+
+enum{
+    HEAP_ADD,
+    HEAP_REMOVE,
+    HEAP_FIND,
+    HEAP_LIST
+};
+
 #define SIZE_INTEGER 4
 #define SIZE_FLOAT 4
 #define MAX_VARIBLE_NAME_LENGHT 64
-
-
 unsigned int HEAP_HashVaribleName(char name[MAX_VARIBLE_NAME_LENGHT]){
     unsigned int res = 0;
     for(int c = 0; c <= strlen(name); c++){
@@ -22,48 +27,11 @@ unsigned int HEAP_HashVaribleName(char name[MAX_VARIBLE_NAME_LENGHT]){
     return res;
 }
 
-int choice = 0;
 
-
-struct Node{
-    void* data; // ATTENTION: memory address to allocated memory
-    struct Node* next;
-    unsigned int name; // ATTENTION: This needs a hash function to spit out an int!
-};
-// TEST DATA
-struct Nodes{
-    struct Node* start;
-    int number_of_nodes;
-    struct Node* node;
-};
-
-
-// this is what we need to keep track of
-struct HeapWrap{
-    struct Nodes* nodes;
-    struct Node* node;
-    unsigned int n;
-};
-struct Nodes nodes;
-struct Node node;
-struct Node* start = &node;
-struct Node* JariPekare;
-
-//struct Node* node = start;
-
-
-enum{
-    HEAP_CREATE,
-    HEAP_REMOVE,
-    HEAP_LIST,
-    HEAP_FIND
-};
-
-
-// data sizes, add an absurd ammount of these for enjoyment..
-
-
+// MINNE
 void* mem_alloc(void* data, int size){
+
+
     void *ptr = mmap ( NULL, size,
       PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
 
@@ -71,7 +39,14 @@ void* mem_alloc(void* data, int size){
         puts("memory allocation failed");
         exit(-1);
     }
+
+
+
+
+
     memcpy(ptr, data, size);   // KOPIERA ÖVER MINNET, ALERT: SEGFAULT! (chorus of spaceballs theme) (no longer but props soon again <--)
+
+
     return ptr;
 }
 
@@ -83,6 +58,17 @@ int mem_free(void* ptr, long int size){
     }return 1;
 }
 
+struct Node{
+    void* data;
+    struct Node* next;
+    unsigned int name;
+};
+// TEST DATA
+struct Nodes{
+    struct Node* start;
+    int number_of_nodes;
+    struct Node* node;
+};
 
 union Test{
     int mode;
@@ -90,19 +76,29 @@ union Test{
     union Test* ptr;
 };
 
+struct Nodes nodes;
 
-struct Node* LL_Create(struct Nodes* nodes, int n, void* data, char name[MAX_VARIBLE_NAME_LENGHT]){
-    nodes->number_of_nodes = n;
+struct Node* start;
+
+struct Node* JariPekare;
+
+struct Node** node = &start;
+
+struct Node* LL_Create(struct Nodes* nodes, int n, void* pointer /*char name[MAX_VARIBLE_NAME_LENGHT]*/){
+
+
+    nodes->number_of_nodes = n;                 // good or bad, idk to * or not to *, that is the biggest question oif them all for mediocre C programmers
     nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));    // ALERT: FIRST ALLOC HERE TO SET UP VARIBLES
     struct Node* start = nodes->node;       // start adress for linked list, BTW does this work like you think it does?
     struct Node* prev;
 
 
+
     for(int i = 1; i <= nodes->number_of_nodes; i++){
 
 
-        nodes->node->data = data;
-        nodes->node->name = HEAP_HashVaribleName(name);
+        nodes->node->data = pointer;
+        /*nodes->node->name = HEAP_HashVaribleName(name);*/
 
 
         prev = nodes->node;
@@ -113,8 +109,8 @@ struct Node* LL_Create(struct Nodes* nodes, int n, void* data, char name[MAX_VAR
         }
 
 
-    nodes->node = (struct Node*)mem_alloc(nodes->node, sizeof(struct Node));
-    prev->next = nodes->node;  // ALERT:  next pointer
+        nodes->node = (struct Node*)mem_alloc(nodes->node, sizeof(struct Node));
+        prev->next = nodes->node;  // ALERT:  next pointer
     }
     return start;
 }
@@ -125,7 +121,7 @@ int LL_List(struct Nodes* nodes, int n, struct Node* start){
     // puts("haw");
     for(int i = 1; i <= n; i++){
         // puts("boys");
-        printf("(%d) %p %p %d\n", i, &node, node->data, node->name);
+        printf("N:(%d) NODE_ADDRESS:%p CONTAINED_POINTER:%p VARIBLE_NAME_HASHED:%u\n", i, &node, node->data, node->name);
         if(i == 1){
             node = start->next;
             continue;
@@ -142,31 +138,52 @@ int LL_List(struct Nodes* nodes, int n, struct Node* start){
 
 int LL_Remove(struct Nodes* nodes, int n, struct Node* start, int choice){
     LL_List(nodes, n, start);
+
     struct Node* node = start;
+
+
+
+
     for(int i = 1; i <= n; i++){
-        //printf("(%d) %p %d\n", i, &node->data, node->data);
+
+
+
+
+        printf("(%d) %p %p\n", i, &node->data, node->data);
         if(i == (choice-1)){
             puts("ran");
             struct Node* temp = node->next;     // skapa temporär pekare till nästa nod
             node->next = temp->next;           //  flytta nuvarande nods pekare till temp
-            mem_free(&temp, sizeof(*temp));    //   fria minnet för temp;
+            mem_free(&temp, sizeof(temp));    //   fria minnet för temp;
             break;
         }
+    /*
+        if(i == 1){
+            node = start->next;
+            continue;
+
+        }
+    */
         node = node->next;
     }
+
+
     n--;
     return n;
 
 }
 
-unsigned int HEAP_Main(unsigned int n, unsigned int opcode, void* data, char varible_name[MAX_VARIBLE_NAME_LENGHT]){  // the data varible contains a pointer to allocated memory, just left null when doing something that does not need it
+
+
+unsigned int Terminal_Interface(unsigned int opcode, int numberofnodes, void* data_ptr /*char varname[MAX_VARIBLE_NAME_LENGHT]*/){
+    int choice = 0;
+
+        int n;
         puts("\n");
         switch(opcode){
-            case 2343245:   // secret souce functionality
-                /*This does not even clear memory... HAH*/
-                break;
-            case HEAP_CREATE:
-                start = LL_Create(&nodes, n, data, varible_name);
+            case HEAP_ADD:
+                n = numberofnodes;
+                start = LL_Create(&nodes, n, data_ptr/*,varname*/);
                 break;
             case HEAP_LIST:
                 LL_List(&nodes, n, start);
@@ -188,7 +205,7 @@ unsigned int HEAP_Main(unsigned int n, unsigned int opcode, void* data, char var
                 puts("ran LL_Remove");
                 n = LL_Remove(&nodes, n, start, choice);
                 break;
-            /*
+
             case HEAP_FIND:
                 printf("Sökt värde: ");
                 scanf("%d", &choice);
@@ -196,8 +213,8 @@ unsigned int HEAP_Main(unsigned int n, unsigned int opcode, void* data, char var
 
 
                 for(int i = 1; i <= n; i++){
-                   if(choice == node->data){
-                     printf("(%d) %p %d\n", i, &node->data, node->data);
+                   if(choice == node->name){
+                     printf("(%d) %p %p\n", i, &node->data, node->data);
                      break;
                    }
                 if(i == 1){
@@ -208,66 +225,19 @@ unsigned int HEAP_Main(unsigned int n, unsigned int opcode, void* data, char var
                 }
                 printf("värde finns ej");
                 break;
-
-            */
         }
-
-
     return n;
 }
 int main(int argc, char* argv[]){
-
-    // create some ghost functions to call heap main
-
-    void* data_ptr = (void*)mem_alloc(data_ptr, SIZE_INTEGER);
-
-    // well then
-    int test = 43;
-    // assign value:
-    memcpy(data_ptr, &test, SIZE_INTEGER);
-
-
-    // DE-BUG tests
-
-    // use n = 0 for start
-
-    printf("INITIAL START: %p\n", start);
     unsigned int n = 0;
-    n = HEAP_Main(1, HEAP_CREATE, (void*)data_ptr, "test\0");
-    // de-BUG
-    printf("value of n1: %d\n", n);
-    printf("%p\n", start);
-    // de-BUG
-    n = HEAP_Main(n, HEAP_LIST, NULL, NULL);
 
-    // de-BUG
-    printf("value of n2: %d\n", n);
-    printf("%p\n", start);
-    // de-BUG
-    mem_free(data_ptr, SIZE_INTEGER);
-    data_ptr = (void*)mem_alloc(data_ptr, SIZE_INTEGER);
+    //void* data_ptr = (void*)mem_alloc(data_ptr, SIZE_INTEGER);
 
+    void* data_ptr = (void*)0x456;
+    Terminal_Interface(HEAP_ADD, 3, data_ptr);
+    //Terminal_Interface(HEAP_ADD, 3, data_ptr);
+    Terminal_Interface(HEAP_LIST, 0, NULL);
 
-
-
-    n = HEAP_Main(n+1, HEAP_CREATE, (void*)data_ptr, "varible\0");
-
-    // de-BUG
-    printf("value of n3: %d\n", n);
-    printf("%p\n", start);
-    // de-BUG
-
-    n = HEAP_Main(n, HEAP_LIST, NULL, NULL);
-
-    // de-BUG
-    printf("value of n4: %d\n", n);
-    printf("%p\n", start);
-    // de-BUG
-    mem_free(data_ptr, SIZE_INTEGER);
-
-    n = HEAP_Main(n, HEAP_LIST, NULL, NULL);
-    //HEAP_Main(HEAP_REMOVE, NULL, "varible"); /* ATTENTION: remove all on varible_name=NULL */
-    //HEAP_Main(HEAP_REMOVE);
     return 0;
 }
-// (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "MESSAGE HERE" && git push -u origi master)
+// (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "för om gör rätt" && git push -u origi master)
