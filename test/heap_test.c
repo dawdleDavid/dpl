@@ -22,7 +22,7 @@ enum{
 unsigned int HEAP_HashVaribleName(char name[MAX_VARIBLE_NAME_LENGHT]){
     unsigned int res = 0;
     for(int c = 0; c <= strlen(name); c++){
-        res += (unsigned int)name[c]; // this is dumb... BUT IT WORKS
+        res += (unsigned int)name[c]; // this is dumb... reversed varible names anyone, no?
     }
     return res;
 }
@@ -39,14 +39,7 @@ void* mem_alloc(void* data, int size){
         puts("memory allocation failed");
         exit(-1);
     }
-
-
-
-
-
     memcpy(ptr, data, size);   // KOPIERA ÖVER MINNET, ALERT: SEGFAULT! (chorus of spaceballs theme) (no longer but props soon again <--)
-
-
     return ptr;
 }
 
@@ -62,66 +55,61 @@ struct Node{
     void* data;
     struct Node* next;
     unsigned int name;
-};
+}node_r;
 // TEST DATA
 struct Nodes{
     struct Node* start;
     int number_of_nodes;
     struct Node* node;
-};
+}nodes_r;
 
 union Test{
     int mode;
 
     union Test* ptr;
 };
+int number_of_nodes = 0; // use like errno?
 
-struct Nodes nodes;
+struct Nodes* nodes = &nodes_r;
 
-struct Node* start;
+struct Node* start = &node_r;
 
 struct Node* JariPekare;
 
-struct Node** node = &start;
+struct Node* node = &node_r;
 
-struct Node* LL_Create(struct Nodes* nodes, int n, void* pointer /*char name[MAX_VARIBLE_NAME_LENGHT]*/){
+struct Node* prev;
 
+struct Node* LL_Create(void* pointer,char name[MAX_VARIBLE_NAME_LENGHT]){
 
-    nodes->number_of_nodes = n;                 // good or bad, idk to * or not to *, that is the biggest question oif them all for mediocre C programmers
-    nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));    // ALERT: FIRST ALLOC HERE TO SET UP VARIBLES
-    struct Node* start = nodes->node;       // start adress for linked list, BTW does this work like you think it does?
-    struct Node* prev;
+    // good or bad,  to * or not to *, that is the biggest question off them all too mediocre C programmers
+    printf("%p\n", nodes->node);
 
+    prev = nodes->node;
+    nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));
+    prev->next = nodes->node;
 
-
-    for(int i = 1; i <= nodes->number_of_nodes; i++){
-
-
-        nodes->node->data = pointer;
-        /*nodes->node->name = HEAP_HashVaribleName(name);*/
-
-
-        prev = nodes->node;
-
-        if(i == nodes->number_of_nodes){
-            prev->next = start;
-            continue;   // works like a break;
-        }
-
-
-        nodes->node = (struct Node*)mem_alloc(nodes->node, sizeof(struct Node));
-        prev->next = nodes->node;  // ALERT:  next pointer
+    // // HACK (:<
+    if(number_of_nodes == 1){ // if this is the first node
+        start = nodes->node;
+    }else if(number_of_nodes == 2){
+        start->next = nodes->node;
     }
+
+    nodes->node->data = pointer;
+    nodes->node->name = HEAP_HashVaribleName(name);
+
+    nodes->node->next = start;
     return start;
 }
-int LL_List(struct Nodes* nodes, int n, struct Node* start){
+int LL_List(int n, struct Node* start){
     // puts("yee");
     struct Node* node = start;
 
     // puts("haw");
     for(int i = 1; i <= n; i++){
         // puts("boys");
-        printf("N:(%d) NODE_ADDRESS:%p CONTAINED_POINTER:%p VARIBLE_NAME_HASHED:%u\n", i, &node, node->data, node->name);
+        printf("N:(%d) CONTAINED_POINTER:%p VARIBLE_NAME_HASHED:%u\n", i, node->data, node->name);
         if(i == 1){
             node = start->next;
             continue;
@@ -136,61 +124,41 @@ int LL_List(struct Nodes* nodes, int n, struct Node* start){
     return 0;
 }
 
-int LL_Remove(struct Nodes* nodes, int n, struct Node* start, int choice){
-    LL_List(nodes, n, start);
+int LL_Remove(int n, struct Node* start, int choice){
+    LL_List(n, start);
 
     struct Node* node = start;
-
-
-
-
     for(int i = 1; i <= n; i++){
-
-
-
-
         printf("(%d) %p %p\n", i, &node->data, node->data);
         if(i == (choice-1)){
             puts("ran");
             struct Node* temp = node->next;     // skapa temporär pekare till nästa nod
             node->next = temp->next;           //  flytta nuvarande nods pekare till temp
-            mem_free(&temp, sizeof(temp));    //   fria minnet för temp;
+            mem_free(&temp, sizeof(*temp));    //   fria minnet för temp;
             break;
         }
-    /*
-        if(i == 1){
-            node = start->next;
-            continue;
-
-        }
-    */
         node = node->next;
     }
-
-
     n--;
     return n;
-
 }
 
 
 
-unsigned int Terminal_Interface(unsigned int opcode, int numberofnodes, void* data_ptr /*char varname[MAX_VARIBLE_NAME_LENGHT]*/){
+unsigned int Terminal_Interface(unsigned int opcode, void* data_ptr, char varname[MAX_VARIBLE_NAME_LENGHT]){
     int choice = 0;
-
-        int n;
         puts("\n");
         switch(opcode){
             case HEAP_ADD:
-                n = numberofnodes;
-                start = LL_Create(&nodes, n, data_ptr/*,varname*/);
+                number_of_nodes++; // one at a time
+                start = LL_Create(data_ptr, varname);
                 break;
             case HEAP_LIST:
-                LL_List(&nodes, n, start);
+                LL_List(number_of_nodes, start);
                 break;
 
             case HEAP_REMOVE:
-                LL_List(&nodes, n, start);
+                LL_List(number_of_nodes, start);
                 printf("Witch list would you like to remove?: ");
                 scanf("%d", &choice);
                 if(choice == 1){
@@ -199,11 +167,11 @@ unsigned int Terminal_Interface(unsigned int opcode, int numberofnodes, void* da
                     start = (struct Node*)JariPekare;
                     printf("\n\n%p\n", start);
 
-                    n--;
+                    number_of_nodes--;
                     break;
                 }
                 puts("ran LL_Remove");
-                n = LL_Remove(&nodes, n, start, choice);
+                number_of_nodes = LL_Remove(number_of_nodes, start, choice);
                 break;
 
             case HEAP_FIND:
@@ -212,7 +180,7 @@ unsigned int Terminal_Interface(unsigned int opcode, int numberofnodes, void* da
                    struct Node* node = start;
 
 
-                for(int i = 1; i <= n; i++){
+                for(int i = 1; i <= number_of_nodes; i++){
                    if(choice == node->name){
                      printf("(%d) %p %p\n", i, &node->data, node->data);
                      break;
@@ -226,18 +194,33 @@ unsigned int Terminal_Interface(unsigned int opcode, int numberofnodes, void* da
                 printf("värde finns ej");
                 break;
         }
-    return n;
+    return 0;
 }
+
+
+
 int main(int argc, char* argv[]){
-    unsigned int n = 0;
 
-    //void* data_ptr = (void*)mem_alloc(data_ptr, SIZE_INTEGER);
+    /* just cut your losses and use malloc...*/
+    void* void_ptr = malloc(SIZE_INTEGER);
+    void* new = malloc(SIZE_INTEGER);
 
-    void* data_ptr = (void*)0x456;
-    Terminal_Interface(HEAP_ADD, 3, data_ptr);
-    //Terminal_Interface(HEAP_ADD, 3, data_ptr);
-    Terminal_Interface(HEAP_LIST, 0, NULL);
+
+
+    //void* data_ptr = (void*)0x456;
+    Terminal_Interface(HEAP_ADD, void_ptr, "43");
+    Terminal_Interface(HEAP_ADD, new, "anothertest");
+    Terminal_Interface(HEAP_ADD, void_ptr, "test");
+
+
+    Terminal_Interface(HEAP_LIST, NULL, NULL);
+
+
+    free(void_ptr);
+    free(new);
 
     return 0;
 }
 // (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "för om gör rätt" && git push -u origi master)
+// https://developers.redhat.com/articles/the-gdb-developers-gnu-debugger-tutorial-part-1-getting-started-with-the-debugger
+// gcc heap_test.c -g -g3 -o heap -O0
