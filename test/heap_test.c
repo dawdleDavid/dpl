@@ -72,7 +72,7 @@ int number_of_nodes = 0; // use like errno?
 
 struct Nodes* nodes = &nodes_r;
 
-struct Node* start = &node_r;
+struct Node* start;
 
 struct Node* JariPekare;
 
@@ -81,13 +81,18 @@ struct Node* node = &node_r;
 struct Node* prev;
 
 struct Node* LL_Create(void* pointer,char name[MAX_VARIBLE_NAME_LENGHT]){
-
+    bool prev_flag = false;
     // good or bad,  to * or not to *, that is the biggest question off them all too mediocre C programmers
-    printf("%p\n", nodes->node);
 
-    prev = nodes->node;
+    if(number_of_nodes > 1){
+        prev_flag = true;
+    }
+    if(prev_flag)
+        prev = nodes->node;
     nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));
-    prev->next = nodes->node;
+    printf("%p\n", nodes->node);
+    if(prev_flag)
+        prev->next = nodes->node;
 
     // // HACK (:<
     if(number_of_nodes == 1){ // if this is the first node
@@ -211,7 +216,7 @@ int main(int argc, char* argv[]){
     Terminal_Interface(HEAP_ADD, void_ptr, "43");
     Terminal_Interface(HEAP_ADD, new, "anothertest");
     Terminal_Interface(HEAP_ADD, void_ptr, "test");
-
+    Terminal_Interface(HEAP_ADD, void_ptr, "eat my");
 
     Terminal_Interface(HEAP_LIST, NULL, NULL);
 
