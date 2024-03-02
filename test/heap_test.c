@@ -104,6 +104,8 @@ union MTPL_Variable{
     // float types
     float float_t;
     double double_t;
+    // bool
+    unsigned char boolean;
 };typedef union MTPL_Variable MTPL_Variable;
 /*
     We also need to check what the architecture that we are on supports!
@@ -130,7 +132,7 @@ union MTPL_Variable{
 #define UNSIGNED_INTEGER_32_SIZE sizeof(uint32_t)
 #define UNSIGNED_INTEGER_64_SIZE sizeof(uint64_t)
 
-
+#define CHARACTER_SIZE sizeof(char)
 
 
 
@@ -232,7 +234,7 @@ MTPL_Heap* HEAP_Main(unsigned int opcode, void* data_ptr, char varname[MAX_VARIA
                 scanf("%d", &choice);
                 if(choice == 1){
                     JariPekare = start->next;
-                    mem_free(start, sizeof(node));
+                    mem_free(start, sizeof(*node));
                     start = (struct Node*)JariPekare;
                     printf("\n\n%p\n", start);
 
@@ -265,16 +267,6 @@ MTPL_Heap* HEAP_Main(unsigned int opcode, void* data_ptr, char varname[MAX_VARIA
         }
     return (MTPL_Heap*)0;
 }
-
-/*
-
-struct Nodes* nodes = &nodes_r;
-struct Node* start;
-struct Node* JariPekare;
-struct Node* node = &node_r;
-struct Node* prev;
-
- */
 MTPL_Heap* HEAP_Init(){
 
     struct Node node;
@@ -291,44 +283,63 @@ MTPL_Heap* HEAP_Init(){
     return heap;
 }
 
-uint_least8_t HEAP_Add(uint_least8_t vartype, uint_least8_t size, MTPL_Variable* variable){
+uint_least8_t HEAP_Add(uint_least8_t vartype, MTPL_Variable* variable, char name[MAX_VARIABLE_NAME_LENGHT]){
 
     // ALLOC mem
-    void* variable_mem = (void*)mem_alloc(variable_mem, size);
+    void* variable_mem;
     // Check mem
     if(variable_mem == (void *)-1){
         return 1;
     }
         // gigant switch statement time?
+
+    /* Same size for unsigned and signed right? Not taking any chanses */
+    uint32_t size = 0; // upper bound
     switch(vartype){
-        case INTEGER_8_TYPE:
-
+        case INTEGER_8_TYPE: size = INTEGER_8_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, INTEGER_8_SIZE);
+            memcpy(variable_mem, &variable->int8, size);
             break;
-        case INTEGER_16_TYPE:
-
+        case INTEGER_16_TYPE: size = INTEGER_16_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, INTEGER_16_SIZE);
+            memcpy(variable_mem, &variable->int16, size);
             break;
-        case INTEGER_32_TYPE:
-
+        case INTEGER_32_TYPE: size = INTEGER_32_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, INTEGER_32_SIZE);
+            memcpy(variable_mem, &variable->int32, size);
             break;
-        case INTEGER_64_TYPE:
-
+        case INTEGER_64_TYPE: size = INTEGER_64_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, INTEGER_64_TYPE);
+            memcpy(variable_mem, &variable->int64, size);
+            break;
+        case UNSIGNED_INTEGER_8_TYPE: size = UNSIGNED_INTEGER_8_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, UNSIGNED_INTEGER_8_SIZE);
+            memcpy(variable_mem, &variable->uint8, size);
+            break;
+        case UNSIGNED_INTEGER_16_TYPE: size = UNSIGNED_INTEGER_16_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, UNSIGNED_INTEGER_16_SIZE);
+            memcpy(variable_mem, &variable->uint16, size);
+            break;
+        case UNSIGNED_INTEGER_32_TYPE: size = UNSIGNED_INTEGER_32_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, UNSIGNED_INTEGER_32_SIZE);
+            memcpy(variable_mem, &variable->uint32, size);
+            break;
+        case UNSIGNED_INTEGER_64_TYPE: size = UNSIGNED_INTEGER_64_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, UNSIGNED_INTEGER_64_SIZE);
+            memcpy(variable_mem, &variable->uint64, size);
             break;
         case STRING_TYPE:
-
+            /* Special case... Lets get back to this later
+            variable_mem = (void*)mem_alloc(variable_mem, STRING_);
+            */
             break;
-        case CHARACTER_TYPE:
-
+        case CHARACTER_TYPE: size = CHARACTER_SIZE;
+            variable_mem = (void*)mem_alloc(variable_mem, CHARACTER_SIZE);
+            memcpy(variable_mem, &variable->character, size);
             break;
 
     }
-
-    // put value in mem
-    memcpy(variable_mem, )
-
-    if(HEAP_Main(HEAP_ADD, variable_mem, "43") == 0){
-        return 0;
-    }
-    return 1;
+    HEAP_Main(HEAP_ADD, variable_mem, name);
 }
 int HEAP_Remove(){
 
