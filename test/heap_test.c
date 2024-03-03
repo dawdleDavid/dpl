@@ -402,6 +402,9 @@ int main(int argc, char* argv[]){
 
     heap = HEAP_Add(heap, INTEGER_16_TYPE, &variable, "wowsers");
 
+    variable.int64 = 32424385798;
+    heap = HEAP_Add(heap, UNSIGNED_INTEGER_64_TYPE, &variable, "yeet");
+
     LL_List(heap->number_of_nodes, heap->start);
 
 
