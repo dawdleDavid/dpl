@@ -12,6 +12,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
+
+/*debug*/
+#include <assert.h>
 enum{
     HEAP_ADD,
     HEAP_REMOVE,
@@ -73,6 +77,8 @@ struct Nodes{
 /* This is not a good idea, but i will do it anyway because I kinda like it*/
 
 struct MTPL_Heap{
+
+    uint32_t size;
     int number_of_nodes;
     struct Nodes* nodes;
     struct Node* start;
@@ -132,40 +138,41 @@ union MTPL_Variable{
 
 #define CHARACTER_SIZE sizeof(char)
 // and yet more defines
-int number_of_nodes = 0;
 
 
 
-struct Nodes* nodes = &nodes_r;
-struct Node* start;
-struct Node* JariPekare;
-struct Node* node = &node_r;
-struct Node* prev;
 
-struct Node* LL_Create(void* pointer,char name[MAX_VARIABLE_NAME_LENGHT]){
+struct MTPL_Heap* LL_Create(MTPL_Heap* heap, uint32_t size, void* pointer,char name[MAX_VARIABLE_NAME_LENGHT]){
+
+
     bool prev_flag = false;
-    // good or bad,  to * or not to *, that is the biggest question off them all too mediocre C programmers
-    if(number_of_nodes > 1){
+    if(heap->number_of_nodes > 1){
         prev_flag = true;
     }
     if(prev_flag)
-        prev = nodes->node;
-    nodes->node = (struct Node*)mem_alloc(&nodes->node, sizeof(*nodes->node));
+        heap->prev = heap->nodes->node;
+
+
+
+
+
+    heap->nodes->node = (struct Node*)mem_alloc(&heap->nodes->node, sizeof(*heap->nodes->node));
+    assert(heap->nodes->node != NULL);
     if(prev_flag)
-        prev->next = nodes->node;
-    // // HACK (:<
-    if(number_of_nodes == 1){ // if this is the first node
-        start = nodes->node;
-    }else if(number_of_nodes == 2){
-        start->next = nodes->node;
+        heap->prev->next = heap->nodes->node;
+
+    if(heap->number_of_nodes == 1){
+        heap->start = heap->nodes->node;
+    }else if(heap->number_of_nodes == 2){
+        heap->start->next = heap->nodes->node;
     }
-    nodes->node->data = pointer;
-    nodes->node->name = HEAP_HashVaribleName(name);
-    nodes->node->size =
+    heap->nodes->node->data = pointer;
+    heap->nodes->node->name = HEAP_HashVaribleName(name);
+    heap->nodes->node->size = size;
 
 
-    nodes->node->next = start;
-    return start;
+    heap->nodes->node->next = heap->start;
+    return heap;
 }
 int LL_List(int n, struct Node* start){
     // puts("yee");
@@ -210,66 +217,70 @@ int LL_Remove(int n, struct Node* start, int choice){
 
 
 
-MTPL_Variable* HEAP_Main(MTPL_Variable* heap, unsigned int opcode, void* data_ptr, char varname[MAX_VARIABLE_NAME_LENGHT]){
+MTPL_Heap* HEAP_Main(MTPL_Heap* heap, uint32_t size, unsigned int opcode, void* data_ptr, char varname[MAX_VARIABLE_NAME_LENGHT]){
     unsigned int choice = 0;
         puts("\n");
         switch(opcode){
             case HEAP_ADD:
-                number_of_nodes++; // one at a time
-                start = LL_Create(data_ptr, varname);
+                heap->number_of_nodes++; // one at a time
+                heap = LL_Create(heap, size, data_ptr, varname);
+                assert(heap->start != NULL);
+                heap->size += size;
                 break;
             case HEAP_LIST:
-                LL_List(number_of_nodes, start);
+                LL_List(heap->number_of_nodes, heap->start);
                 break;
 
             case HEAP_REMOVE:
-                LL_List(number_of_nodes, start);
+                LL_List(heap->number_of_nodes, heap->start);
                 printf("Witch list would you like to remove?: ");
                 scanf("%d", &choice);
                 if(choice == 1){
-                    JariPekare = start->next;
-                    mem_free(start, sizeof(*node));
-                    start = (struct Node*)JariPekare;
-                    printf("\n\n%p\n", start);
+                    heap->JariPekare = heap->start->next;
+                    mem_free(heap->start, sizeof(*heap->node));
+                    heap->start = (struct Node*)heap->JariPekare;
+                    printf("\n\n%p\n", heap->start);
 
-                    number_of_nodes--;
+                    heap->number_of_nodes--;
                     break;
                 }
                 puts("ran LL_Remove");
-                number_of_nodes = LL_Remove(number_of_nodes, start, choice);
+                heap->number_of_nodes = LL_Remove(heap->number_of_nodes, heap->start, choice);
                 break;
-
             case HEAP_FIND:
                 choice = HEAP_HashVaribleName(varname);
-                struct Node* node = start;
-                for(int i = 1; i <= number_of_nodes; i++){
+                struct Node* node = heap->start;
+                for(int i = 1; i <= heap->number_of_nodes; i++){
                     if(choice == node->name){
                         // Edit struct and return
 
-                        var
+                        //var
                         return heap;
                         break;
                     }
                     if(i == 1){
-                        node = start->next;
+                        node = heap->start->next;
                         continue;
                     }
                     node = node->next;
                 }
                 break;
         }
-    return (MTPL_Variable*)0;
+    return heap; // modified
 }
 /* remember that you need to mem_free this later! */
 MTPL_Heap* HEAP_Init(){
     struct Node node;
     struct Nodes nodes;
-    MTPL_Heap* heap = (MTPL_Heap*)mem_alloc(heap, sizeof(MTPL_Heap));
+    MTPL_Heap* heap = (MTPL_Heap*)malloc(sizeof(MTPL_Heap)); /* another defeat */
     heap->nodes = &nodes;
     heap->node = &node;
     heap->number_of_nodes = 0;
     return heap;
 }
+
+
+
 
 MTPL_Heap* HEAP_Add(MTPL_Heap* heap, uint_least8_t vartype, MTPL_Variable* variable, char name[MAX_VARIABLE_NAME_LENGHT]){
 
@@ -327,7 +338,8 @@ MTPL_Heap* HEAP_Add(MTPL_Heap* heap, uint_least8_t vartype, MTPL_Variable* varia
             break;
 
     }
-    return HEAP_Main(heap, HEAP_ADD, variable_mem, name);
+    assert(variable_mem != NULL);
+    return HEAP_Main(heap, size, HEAP_ADD, variable_mem, name);
 }
 int HEAP_Remove(){
 
@@ -341,7 +353,7 @@ int HEAP_Clean(){
 
 int HEAP_Get(char name[MAX_VARIABLE_NAME_LENGHT]){
 
-    HEAP_Main(heap, HEAP_FIND, )
+    //HEAP_Main(heap, HEAP_FIND, )
 
     return 0;
 }
@@ -378,9 +390,19 @@ int main(int argc, char* argv[]){
 
     MTPL_Variable variable;
 
-    variable.int16 = 600;
+    variable.int32 = 600;
 
-    heap = HEAP_Add(heap, INTEGER_16_TYPE, &variable, "test");
+    heap = HEAP_Add(heap, INTEGER_32_TYPE, &variable, "test");
+
+
+    LL_List(heap->number_of_nodes, heap->start);
+
+
+    printf("%d %p\n", heap->size, heap->node);
+
+    free(heap);
+
+
     return 0;
 }
 // (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "för om gör rätt" && git push -u origi master)

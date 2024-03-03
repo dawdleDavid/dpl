@@ -95,14 +95,11 @@ void mtplParse(FILE* file){
         }
             // do something with the line that you just got
         memwrap_p = findKeyword(&memwrap, row);
-        char varc[ROW_LIMIT];
+        char varc[ROW_LIMIT] = "";
         // extract value from string
 
         for( int index = 0;index <= ROW_LIMIT; index++){
             printf("%s\n", memwrap_p->words_list[index]);
-
-
-
             assert(memwrap_p->words_list[index] != NULL);
 
             if(strstr(memwrap_p->words_list[index], "\n") != NULL){
@@ -115,11 +112,18 @@ void mtplParse(FILE* file){
                         strcpy(varc, memwrap_p->words_list[index+1]);
                         break;
                     }
-
                 }
             }
-        }
+            // handle the variable
+            if(strcmp(varc, "") != 0){
+                // allocation time
+                // integer value only
 
-        printf("->%s\n", varc);
-    }//endwhile
+
+                // Måste fixa minneallokeringen innan jag kan börja med det här...
+                //index+2
+            }
+        }
+    }
+
 }
