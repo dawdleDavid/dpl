@@ -4,48 +4,31 @@
 
 #include <string.h>
 #include <stdbool.h>
-/*
-    Convert the data from string
-    form to numbers that are
-    easy to work with. data is
-    expected to come in the form
-    OPERATOR OPERAND.
-*/
 
 // debug
 #include <assert.h>
 // unit testing
 #include <check.h>
 
-
-
 #include "../head/heap.h"
 #include "../head/parser.h"
 #include "../head/strings.h"
 
-const char* key[4] = {
-    "integer",
-    "float",
-    "if",
-    "end"
+
+
+
+const char* vardefs[10] = {
+    "int8 ",
+    "int16 ",
+    "int32 ",
+    "int64 ",
+    "uint8 ",
+    "uint16 ",
+    "uint32 ",
+    "uint64 ",
+    "float ",
+    "lfloat ",
 };
-
-
-struct Tape* memorizeVarible(struct Tape* tape_p, struct Varible_s* varible){
-
-    // handle the varibles;
-    for(int i = 0; i <= ROW_LIMIT; i++){
-        if(string_compare(tape_p->words_list[i], key[0])){
-            // allocate the varible in the linked list with a pointer to its struct
-
-
-            // NOTICE: add_to_list
-        }
-    }
-
-
-    return tape_p;
-}
 
 // returns memory that has to be free'd
 struct Tape* findKeyword(struct Tape* memwrap, char* buffer){
@@ -66,7 +49,6 @@ struct Tape* findKeyword(struct Tape* memwrap, char* buffer){
             words++;
 
             // clean the array...
-
             for(int i = 0; i <= ROW_LIMIT; i++){
                 word[i] = (char)0;
             }
@@ -75,26 +57,18 @@ struct Tape* findKeyword(struct Tape* memwrap, char* buffer){
         }
 
     }
-    for(int i = 0; i <= ROW_LIMIT; i++){
+    int i = 0; // ha, didn't know that works...
+    for(;i <= ROW_LIMIT; i++){
         strcpy(memwrap->words_list[i], words_list[i]);
+        printf("%s\n", memwrap->words_list[i]);
+        if(strstr(memwrap->words_list[i], "\n") != NULL){
+            break;
+        }
     }
     return memwrap;
 }
 // defacto main function of the parser!
 void mtplParse(FILE* file){
-
-
-
-    // init memory structures
-
-
-
-
-
-    struct Varible_s varible;
-    struct MtplState_s state;struct MtplState_s* state_p = &state;
-
-
     struct Tape memwrap; struct Tape* memwrap_p;
 
     if(file == (FILE*)NULL){
@@ -102,24 +76,37 @@ void mtplParse(FILE* file){
     }
 
     puts("we ran this..");
-    // first pass, preprocessing...
     char buffer[ROW_LIMIT];
 
-    //char* word;
-    //while(true){
-
-
-    char* row = fgets(buffer, 256, file);
+    while(true){
+    char* row = fgets(buffer, ROW_LIMIT, file);
 
     if(row == (char*)NULL){
-        printf("end\n");
-            //break;
+        printf("EOF\n");
+        break;
     }
         // do something with the line that you just got
     memwrap_p = findKeyword(&memwrap, row);
-    memwrap_p = memorizeVarible(memwrap_p, &varible);
+    char varc[ROW_LIMIT];
+    // extract value from string
+
+    for(int index = 0;index <= ROW_LIMIT; index++){
+        printf("%s\n", memwrap_p->words_list[index]);
 
 
-    printf("%s\n", memwrap_p->words_list[0]);
-    //}
+        for(int vari = 0; vari <= sizeof(vardefs); vari++){
+            if(strcmp(memwrap_p->words_list[index], vardefs[vari]) == 0){ // oh, i guess that space is to my
+                if(index < ROW_LIMIT){
+                    strcpy(varc, memwrap_p->words_list[index+1]);
+                    break;
+                }
+
+            }
+        }
+    }
+    if(strstr(memwrap_p->words_list[index], "\n") != NULL){
+        break;
+    }
+    printf("->%s\n", varc);
+    }//endwhile
 }

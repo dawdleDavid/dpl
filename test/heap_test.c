@@ -10,9 +10,6 @@
 
 
 #include <stdint.h>
-
-
-
 #include <stdlib.h>
 
 enum{
@@ -64,7 +61,8 @@ int mem_free(void* ptr, long int size){
 struct Node{
     void* data;
     struct Node* next;
-    unsigned int name;
+    uint32_t name;
+    uint32_t size;
 }node_r;
 // TEST DATA
 struct Nodes{
@@ -133,13 +131,6 @@ union MTPL_Variable{
 #define UNSIGNED_INTEGER_64_SIZE sizeof(uint64_t)
 
 #define CHARACTER_SIZE sizeof(char)
-
-
-
-
-
-
-
 // and yet more defines
 int number_of_nodes = 0;
 
@@ -170,6 +161,9 @@ struct Node* LL_Create(void* pointer,char name[MAX_VARIABLE_NAME_LENGHT]){
     }
     nodes->node->data = pointer;
     nodes->node->name = HEAP_HashVaribleName(name);
+    nodes->node->size =
+
+
     nodes->node->next = start;
     return start;
 }
@@ -216,7 +210,7 @@ int LL_Remove(int n, struct Node* start, int choice){
 
 
 
-MTPL_Heap* HEAP_Main(unsigned int opcode, void* data_ptr, char varname[MAX_VARIABLE_NAME_LENGHT]){
+MTPL_Variable* HEAP_Main(MTPL_Variable* heap, unsigned int opcode, void* data_ptr, char varname[MAX_VARIABLE_NAME_LENGHT]){
     unsigned int choice = 0;
         puts("\n");
         switch(opcode){
@@ -252,9 +246,8 @@ MTPL_Heap* HEAP_Main(unsigned int opcode, void* data_ptr, char varname[MAX_VARIA
                     if(choice == node->name){
                         // Edit struct and return
 
-
-
-                        printf("N:(%d) CONTAINED_POINTER:%p VARIBLE_NAME_HASHED:%u\n", i, node->data, node->name);
+                        var
+                        return heap;
                         break;
                     }
                     if(i == 1){
@@ -265,31 +258,26 @@ MTPL_Heap* HEAP_Main(unsigned int opcode, void* data_ptr, char varname[MAX_VARIA
                 }
                 break;
         }
-    return (MTPL_Heap*)0;
+    return (MTPL_Variable*)0;
 }
+/* remember that you need to mem_free this later! */
 MTPL_Heap* HEAP_Init(){
-
     struct Node node;
     struct Nodes nodes;
-
-
     MTPL_Heap* heap = (MTPL_Heap*)mem_alloc(heap, sizeof(MTPL_Heap));
-
     heap->nodes = &nodes;
     heap->node = &node;
     heap->number_of_nodes = 0;
-
-
     return heap;
 }
 
-uint_least8_t HEAP_Add(uint_least8_t vartype, MTPL_Variable* variable, char name[MAX_VARIABLE_NAME_LENGHT]){
+MTPL_Heap* HEAP_Add(MTPL_Heap* heap, uint_least8_t vartype, MTPL_Variable* variable, char name[MAX_VARIABLE_NAME_LENGHT]){
 
     // ALLOC mem
     void* variable_mem;
     // Check mem
     if(variable_mem == (void *)-1){
-        return 1;
+        return (MTPL_Heap*)1;
     }
         // gigant switch statement time?
 
@@ -339,7 +327,7 @@ uint_least8_t HEAP_Add(uint_least8_t vartype, MTPL_Variable* variable, char name
             break;
 
     }
-    HEAP_Main(HEAP_ADD, variable_mem, name);
+    return HEAP_Main(heap, HEAP_ADD, variable_mem, name);
 }
 int HEAP_Remove(){
 
@@ -353,7 +341,7 @@ int HEAP_Clean(){
 
 int HEAP_Get(char name[MAX_VARIABLE_NAME_LENGHT]){
 
-
+    HEAP_Main(heap, HEAP_FIND, )
 
     return 0;
 }
@@ -364,6 +352,7 @@ int HEAP_Get(char name[MAX_VARIABLE_NAME_LENGHT]){
 int main(int argc, char* argv[]){
 
     /* just cut your losses and use malloc... TODO: Remove the illgal!*/
+    /*
     void* void_ptr = malloc(SIZE_INTEGER);
     void* new = malloc(SIZE_INTEGER);
 
@@ -384,7 +373,14 @@ int main(int argc, char* argv[]){
 
     free(void_ptr);
     free(new);
+    */
+    MTPL_Heap* heap = HEAP_Init();
 
+    MTPL_Variable variable;
+
+    variable.int16 = 600;
+
+    heap = HEAP_Add(heap, INTEGER_16_TYPE, &variable, "test");
     return 0;
 }
 // (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "för om gör rätt" && git push -u origi master)
