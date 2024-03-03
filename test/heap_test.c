@@ -16,6 +16,7 @@
 
 /*debug*/
 #include <assert.h>
+#include "debug.h"
 enum{
     HEAP_ADD,
     HEAP_REMOVE,
@@ -48,7 +49,7 @@ void* mem_alloc(void* data, int size){
 
     if(ptr == (void *)-1){
         puts("memory allocation failed");
-        return (void *)-1;
+        return (void *)NULL;
     }
     memcpy(ptr, data, size);   // KOPIERA ÖVER MINNET, ALERT: SEGFAULT! (chorus of spaceballs theme) (no longer but props soon again <--)
     return ptr;
@@ -142,9 +143,12 @@ union MTPL_Variable{
 
 
 
+
+
 struct MTPL_Heap* LL_Create(MTPL_Heap* heap, uint32_t size, void* pointer,char name[MAX_VARIABLE_NAME_LENGHT]){
 
 
+    debpp(151, heap->nodes->node);
     bool prev_flag = false;
     if(heap->number_of_nodes > 1){
         prev_flag = true;
@@ -155,9 +159,12 @@ struct MTPL_Heap* LL_Create(MTPL_Heap* heap, uint32_t size, void* pointer,char n
 
 
 
-
     heap->nodes->node = (struct Node*)mem_alloc(&heap->nodes->node, sizeof(*heap->nodes->node));
-    assert(heap->nodes->node != NULL);
+    debpp(163, heap->nodes->node);
+
+    assert(heap->nodes->node != (struct Node*)NULL);
+
+
     if(prev_flag)
         heap->prev->next = heap->nodes->node;
 
@@ -166,6 +173,7 @@ struct MTPL_Heap* LL_Create(MTPL_Heap* heap, uint32_t size, void* pointer,char n
     }else if(heap->number_of_nodes == 2){
         heap->start->next = heap->nodes->node;
     }
+
     heap->nodes->node->data = pointer;
     heap->nodes->node->name = HEAP_HashVaribleName(name);
     heap->nodes->node->size = size;
@@ -269,9 +277,10 @@ MTPL_Heap* HEAP_Main(MTPL_Heap* heap, uint32_t size, unsigned int opcode, void* 
     return heap; // modified
 }
 /* remember that you need to mem_free this later! */
+struct Node node;
+struct Nodes nodes;
 MTPL_Heap* HEAP_Init(){
-    struct Node node;
-    struct Nodes nodes;
+
     MTPL_Heap* heap = (MTPL_Heap*)malloc(sizeof(MTPL_Heap)); /* another defeat */
     heap->nodes = &nodes;
     heap->node = &node;
@@ -380,37 +389,18 @@ int HEAP_Get(char name[MAX_VARIABLE_NAME_LENGHT]){
 
 int main(int argc, char* argv[]){
 
-    /* just cut your losses and use malloc... TODO: Remove the illgal!*/
-    /*
-    void* void_ptr = malloc(SIZE_INTEGER);
-    void* new = malloc(SIZE_INTEGER);
-
-
-
-    //void* data_ptr = (void*)0x456;
-    HEAP_Main(HEAP_ADD, void_ptr, "43");
-    HEAP_Main(HEAP_ADD, new, "anothertest");
-    HEAP_Main(HEAP_ADD, void_ptr, "test");
-    HEAP_Main(HEAP_ADD, void_ptr, "eat my");
-
-    HEAP_Main(HEAP_FIND, void_ptr, "43");
-
-
-
-    HEAP_Main(HEAP_LIST, NULL, NULL);
-
-
-    free(void_ptr);
-    free(new);
-    */
     MTPL_Heap* heap = HEAP_Init();
 
     MTPL_Variable variable;
 
     variable.int32 = 600;
+    variable.int16 = 6500;
 
-    heap = HEAP_Add(heap, INTEGER_32_TYPE, &variable, "test");
 
+    heap = HEAP_Add(heap, INTEGER_16_TYPE, &variable, "test");
+
+
+    heap = HEAP_Add(heap, INTEGER_16_TYPE, &variable, "wowsers");
 
     LL_List(heap->number_of_nodes, heap->start);
 
