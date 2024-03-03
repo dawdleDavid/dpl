@@ -402,7 +402,7 @@ int main(int argc, char* argv[]){
 
     free(heap);
 
-
+// wee
     return 0;
 }
 // (cd /home/david/Projekts/GY-EX && git add --all && git commit -m "för om gör rätt" && git push -u origi master)
