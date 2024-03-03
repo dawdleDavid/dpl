@@ -346,8 +346,25 @@ int HEAP_Remove(){
 
     return 0;
 }
-int HEAP_Clean(){
+MTPL_Heap* HEAP_Clean(MTPL_Heap* heap){
+
+    struct Node* node = heap->start;
+
+    for(int i = 1; i <= heap->number_of_nodes; i++){
+        mem_free(node->data, node->size);
+        if(i == 1){
+            node = heap->start->next;
+            continue;
+        }
+
+        node = node->next;
+    }
+    if(heap->number_of_nodes == 0){
+        puts("no nodes!");
+    }
+
     return 0;
+
 }
 
 
@@ -398,7 +415,13 @@ int main(int argc, char* argv[]){
     LL_List(heap->number_of_nodes, heap->start);
 
 
+
     printf("%d %p\n", heap->size, heap->node);
+
+
+    heap = HEAP_Clean(heap);
+
+
 
     free(heap);
 
