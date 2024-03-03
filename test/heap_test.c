@@ -68,13 +68,13 @@ struct Node{
     struct Node* next;
     uint32_t name;
     uint32_t size;
-}node_r;
+};
 // TEST DATA
 struct Nodes{
     struct Node* start;
     int number_of_nodes;
     struct Node* node;
-}nodes_r;
+};
 /* This is not a good idea, but i will do it anyway because I kinda like it*/
 
 struct MTPL_Heap{
@@ -86,6 +86,7 @@ struct MTPL_Heap{
     struct Node* JariPekare;
     struct Node* node;
     struct Node* prev;
+    struct Node* last_retv;
 };typedef struct MTPL_Heap MTPL_Heap;
 
 // might aswell use fast, because union is going to be size of biggest data type, and we are going to alloc and truncate.
@@ -261,9 +262,8 @@ MTPL_Heap* HEAP_Main(MTPL_Heap* heap, uint32_t size, unsigned int opcode, void* 
                 for(int i = 1; i <= heap->number_of_nodes; i++){
                     if(choice == node->name){
                         // Edit struct and return
-
+                        heap->last_retv = node;
                         //var
-                        return heap;
                         break;
                     }
                     if(i == 1){
@@ -377,11 +377,8 @@ MTPL_Heap* HEAP_Clean(MTPL_Heap* heap){
 }
 
 
-int HEAP_Get(char name[MAX_VARIABLE_NAME_LENGHT]){
-
-    //HEAP_Main(heap, HEAP_FIND, )
-
-    return 0;
+MTPL_Heap* HEAP_Get(MTPL_Heap* heap, char name[MAX_VARIABLE_NAME_LENGHT]){
+    return HEAP_Main(heap, NULL, HEAP_FIND, NULL, name);
 }
 
 
@@ -411,6 +408,11 @@ int main(int argc, char* argv[]){
 
     printf("%d %p\n", heap->size, heap->node);
 
+
+    heap = HEAP_Get(heap, "yeet");
+
+
+    printf("?: %lu", *((uint64_t*)heap->last_retv->data));
 
     heap = HEAP_Clean(heap);
 
